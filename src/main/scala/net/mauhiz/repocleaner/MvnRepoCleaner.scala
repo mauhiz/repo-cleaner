@@ -55,101 +55,100 @@ class MvnRepoCleaner(repoRootStr: String,
 
 
   private def checkSha1(sha1: String, jarFile: Path, sha1File: Path): Unit = {
-    val input: Array[Byte] = Files.readAllBytes(jarFile)
+    val input = Files.readAllBytes(jarFile)
     val messageDigest: MessageDigest = getSha1Digest
-    val output: Array[Byte] = messageDigest.digest(input)
+    val output = messageDigest.digest(input)
     val hash: String = new String(Hex.encodeHex(output))
     if (StringUtils.equals(sha1, hash)) {
       return
     }
-    println("Reference: " + sha1)
-    println("Computed: " + hash)
+    println(s"Reference: $sha1")
+    println(s"Computed: $hash")
     if (deleteInvalidSha1) {
       Files.deleteIfExists(jarFile)
       Files.deleteIfExists(sha1File)
-      println("Deleting " + jarFile)
-      println("Deleting " + sha1File)
+      println(s"Deleting $jarFile")
+      println(s"Deleting $sha1File")
     }
     else {
-      System.err.println("Corrupt file: " + jarFile)
+      System.err.println(s"Corrupt file: $jarFile")
     }
   }
 
   private def handleDirectory(dir: Path): Unit = {
-    if (".cache" == dir.toAbsolutePath.getFileName.toString) {
-      return
-    }
-    forDirectoryContents(dir)(recurseClean)
-    if (hasNoSubFolder(dir) && hasNoArtifact(dir)) {
-      println("Deleting (almost) empty folder: " + dir)
-      FileUtils.deleteDirectory(dir.toFile)
+    if (".cache" != dir.toAbsolutePath.getFileName.toString) {
+      forDirectoryContents(dir)(recurseClean)
+      if (hasNoSubFolder(dir) && hasNoArtifact(dir)) {
+        println(s"Deleting (almost) empty folder: $dir")
+        FileUtils.deleteDirectory(dir.toFile)
+      }
     }
   }
 
   private def handleRegularFile(file: Path): Unit = {
-    val fileName: String = file.toAbsolutePath.getFileName.toString
-    val ext: String = StringUtils.substringAfterLast(fileName, ".")
+    val fileName = file.toAbsolutePath.getFileName.toString
+    val ext = StringUtils.substringAfterLast(fileName, ".")
     if ("sha1" == ext) {
-      val sha1: String = readFirstLine(file)
+      val sha1 = readFirstLine(file)
       if (sha1 == null) {
-        System.err.println("Invalid reference file: " + file)
+        System.err.println(s"Invalid reference file: $file")
       }
       else {
         handleSha1(sha1, file, fileName)
       }
     }
     else if ("jar" == ext || "pom" == ext || "war" == ext || "zip" == ext) {
-      val sha1File: Path = file.resolveSibling(fileName + ".sha1")
+      val sha1File = file.resolveSibling(s"$fileName.sha1")
       if (Files.notExists(sha1File)) {
         if (deleteOrphanArtifact) {
           Files.delete(file)
-          println("Deleting artifact with missing sha1 file: " + file)
+          println(s"Deleting artifact with missing sha1 file: $file")
         }
         else {
-          println("Artifact with missing sha1 file: " + file)
+          println(s"Artifact with missing sha1 file: $file")
         }
       }
       if (Files.exists(file) && isOldSnapshot(file, fileName)) {
         if (deleteOldSnapshot) {
           Files.delete(file)
           Files.deleteIfExists(sha1File)
-          println("Deleting old snapshot: " + file)
+          println(s"Deleting old snapshot: $file")
         }
         else {
-          println("Oh, an old snapshot: " + file)
+          println(s"Oh, an old snapshot: $file")
         }
       }
     }
     else if ("tmp" == ext) {
       if (deleteTmpFile) {
         Files.deleteIfExists(file)
-        println("Deleting TMP file: " + file)
+        println(s"Deleting TMP file: $file")
       }
       else {
-        println("TMP file: " + file)
+        println(s"TMP file: $file")
       }
     }
   }
 
   private def handleSha1(pSha1: String, sha1File: Path, sha1FileName: String): Unit = {
-    val jarFile: Path = sha1File.resolveSibling(StringUtils.substringBeforeLast(sha1FileName, "."))
+    val jarFile = sha1File.resolveSibling(StringUtils.substringBeforeLast(sha1FileName, "."))
     if (Files.isRegularFile(jarFile)) {
-      val sha1: String = StringUtils.substringBefore(pSha1, " ")
+      val sha1 = StringUtils.substringBefore(pSha1, " ")
       checkSha1(sha1, jarFile, sha1File)
     }
     else if (deleteOrphanSha1) {
       Files.deleteIfExists(sha1File)
-      println("Deleting orphaned sha1 file: " + sha1File)
+      println(s"Deleting orphaned sha1 file: $sha1File")
     }
     else {
-      println("Skipping non-existent hashed file: " + jarFile)
+      println(s"Skipping non-existent hashed file: $jarFile")
     }
   }
 
   private def hasNoArtifact(file: Path): Boolean = {
     forDirectoryContents(file) {
       sub => if (Files.isRegularFile(sub)) {
-        val filename: String = sub.toAbsolutePath.getFileName.toString
+        val filename = sub.toAbsolutePath.getFileName.toString
         if (filename.endsWith(".war") || filename.endsWith(".jar") || filename.endsWith(".pom") || filename.endsWith(".zip")) {
           return false
         }
@@ -179,7 +178,7 @@ class MvnRepoCleaner(repoRootStr: String,
       }
       catch {
         case io: IOException =>
-          System.err.println("Cannot browse: " + file)
+          System.err.println(s"Cannot browse: $file")
           io.printStackTrace()
       }
     }
@@ -189,12 +188,12 @@ class MvnRepoCleaner(repoRootStr: String,
       }
       catch {
         case io: IOException =>
-          System.err.println("Could not handle file: " + file)
+          System.err.println(s"Could not handle file: $file")
           io.printStackTrace()
       }
     }
     else if (Files.exists(file)) {
-      System.err.println("Wtf file: " + file)
+      System.err.println(s"Wtf file: $file")
     }
     else {
     }
