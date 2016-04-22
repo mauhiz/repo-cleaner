@@ -76,7 +76,8 @@ class MvnRepoCleaner(repoRootStr: String,
   }
 
   private def handleDirectory(dir: Path): Unit = {
-    if (".cache" != dir.toAbsolutePath.getFileName.toString) {
+    val dirName = dir.toAbsolutePath.getFileName.toString
+    if (".cache" != dirName && ".locks" != dirName) {
       forDirectoryContents(dir)(recurseClean)
       if (hasNoSubFolder(dir) && hasNoArtifact(dir)) {
         println(s"Deleting (almost) empty folder: $dir")
