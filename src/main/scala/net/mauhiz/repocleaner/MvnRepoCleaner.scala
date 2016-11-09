@@ -1,18 +1,16 @@
 package net.mauhiz.repocleaner
 
-import java.io.{BufferedReader, IOException}
+import java.io.IOException
+import java.nio.charset.StandardCharsets
 import java.nio.file.{DirectoryStream, Files, Path, Paths}
 import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
 
 import org.apache.commons.codec.binary.Hex
-import org.apache.commons.io.{Charsets, FileUtils}
+import org.apache.commons.io.FileUtils
 import org.apache.commons.lang3.StringUtils
 
 object MvnRepoCleaner extends App {
-  final val MvnSnapshotName = "\\-SNAPSHOT[\\.\\-]".r
-  final val MvnSnapshotTs = "\\-20\\d\\d[01]\\d[0-2]\\d\\.[0-2]\\d[0-5]\\d[0-5]\\d\\-".r
-  final val SnapshotExpirationMs: Long = TimeUnit.DAYS.toMillis(15)
 
   val repoCleaner: MvnRepoCleaner = new MvnRepoCleaner(args(0))
   repoCleaner.run()
@@ -20,7 +18,7 @@ object MvnRepoCleaner extends App {
   private def getSha1Digest: MessageDigest = MessageDigest.getInstance("SHA-1")
 
   private def readFirstLine(file: Path): String = {
-    val reader: BufferedReader = Files.newBufferedReader(file, Charsets.UTF_8)
+    val reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)
     try {
       reader.readLine
     } finally {
@@ -50,6 +48,9 @@ class MvnRepoCleaner(repoRootStr: String,
   import net.mauhiz.repocleaner.MvnRepoCleaner._
 
   private val repoRoot: Path = Paths.get(repoRootStr)
+  final val MvnSnapshotName = "\\-SNAPSHOT[\\.\\-]".r
+  final val MvnSnapshotTs = "\\-20\\d\\d[01]\\d[0-2]\\d\\.[0-2]\\d[0-5]\\d[0-5]\\d\\-".r
+  final val SnapshotExpirationMs: Long = TimeUnit.DAYS.toMillis(15)
 
   def run(): Unit = recurseClean(repoRoot)
 
