@@ -48,8 +48,8 @@ class MvnRepoCleaner(repoRootStr: String,
   import net.mauhiz.repocleaner.MvnRepoCleaner._
 
   private val repoRoot: Path = Paths.get(repoRootStr)
-  final val MvnSnapshotName = "\\-SNAPSHOT[\\.\\-]".r
-  final val MvnSnapshotTs = "\\-20\\d\\d[01]\\d[0-2]\\d\\.[0-2]\\d[0-5]\\d[0-5]\\d\\-".r
+  private val MvnSnapshotName = "\\-SNAPSHOT[\\.\\-]".r
+  private val MvnSnapshotTs = "\\-20\\d\\d[01]\\d[0-2]\\d\\.[0-2]\\d[0-5]\\d[0-5]\\d\\-".r
   final val SnapshotExpirationMs: Long = TimeUnit.DAYS.toMillis(15)
 
   def run(): Unit = recurseClean(repoRoot)
