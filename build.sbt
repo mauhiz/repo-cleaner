@@ -2,7 +2,7 @@ name := "repo-cleaner"
 
 version := "1.0"
 
-scalaVersion := "2.13.6"
+scalaVersion := "2.13.8"
 
 scalacOptions ++= Seq("-Xlint", "-feature", "-deprecation")
 
@@ -12,4 +12,4 @@ libraryDependencies += "commons-codec" % "commons-codec" % "1.15"
 
 libraryDependencies += "org.apache.commons" % "commons-lang3" % "3.12.0"
 
-libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "2.0.1"
+libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "2.1.0"
