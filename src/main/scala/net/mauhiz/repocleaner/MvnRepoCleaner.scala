@@ -49,7 +49,7 @@ class MvnRepoCleaner(repoRootStr: String,
 
   private val repoRoot: Path = Paths.get(repoRootStr)
   private val MvnSnapshotName = "-SNAPSHOT[.-]".r
-  private val MvnSnapshotTs = "-20\\d\\d[01]\\d[0-2]\\d\\.[0-2]\\d[0-5]\\d[0-5]\\d-".r
+  private val MvnSnapshotTs = "-20\\d\\d[01]\\d[0-3]\\d\\.[0-2]\\d[0-5]\\d[0-5]\\d-".r
   final val SnapshotExpirationMs: Long = TimeUnit.DAYS.toMillis(15)
 
   def run(): Unit = recurseClean(repoRoot)
