@@ -129,6 +129,11 @@ class MvnRepoCleaner(repoRootStr: String,
       else {
         println(s"TMP file: $file")
       }
+    } else if ("properties" == ext) {
+      if (Files.readString(file).contains("\\u0")) {
+        Files.delete(file)
+        println(s"Deleting malformed properties: $file")
+      }
     }
   }
 
