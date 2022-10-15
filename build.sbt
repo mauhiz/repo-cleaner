@@ -2,7 +2,7 @@ name := "repo-cleaner"
 
 version := "1.0"
 
-scalaVersion := "2.13.8"
+scalaVersion := "2.13.10"
 
 scalacOptions ++= Seq("-Xlint", "-feature", "-deprecation")
 
