@@ -10,10 +10,12 @@ import org.apache.commons.codec.binary.Hex
 import org.apache.commons.io.FileUtils
 import org.apache.commons.lang3.StringUtils
 
-object MvnRepoCleaner extends App {
+object MvnRepoCleaner {
 
-  val repoCleaner: MvnRepoCleaner = new MvnRepoCleaner(args(0))
-  repoCleaner.run()
+  @main def main(args: String*): Unit = {
+    val repoCleaner: MvnRepoCleaner = new MvnRepoCleaner(args(0))
+    repoCleaner.run()
+  }
 
   private def getSha1Digest: MessageDigest = MessageDigest.getInstance("SHA-1")
 
@@ -45,7 +47,7 @@ class MvnRepoCleaner(repoRootStr: String,
                      deleteOrphanSha1: Boolean = true,
                      deleteTmpFile: Boolean = true) extends Runnable {
 
-  import net.mauhiz.repocleaner.MvnRepoCleaner._
+  import net.mauhiz.repocleaner.MvnRepoCleaner.*
 
   private val repoRoot: Path = Paths.get(repoRootStr)
   private val MvnSnapshotName = "-SNAPSHOT[.-]".r
@@ -60,7 +62,7 @@ class MvnRepoCleaner(repoRootStr: String,
     val messageDigest: MessageDigest = getSha1Digest
     val output = messageDigest.digest(input)
     val hash: String = new String(Hex.encodeHex(output))
-    if (StringUtils.equals(sha1, hash)) {
+    if (sha1 == hash) {
       return
     }
     println(s"Reference: $sha1")
@@ -153,24 +155,26 @@ class MvnRepoCleaner(repoRootStr: String,
   }
 
   private def hasNoArtifact(file: Path): Boolean = {
+    var hasArtifact = false
     forDirectoryContents(file) {
       sub => if (Files.isRegularFile(sub)) {
         val filename = sub.toAbsolutePath.getFileName.toString
         if (filename.endsWith(".war") || filename.endsWith(".jar") || filename.endsWith(".pom") || filename.endsWith(".zip")) {
-          return false
+          hasArtifact = true
         }
       }
     }
-    true
+    !hasArtifact
   }
 
   private def hasNoSubFolder(file: Path): Boolean = {
+    var hasSubFolder = false
     forDirectoryContents(file) {
       sub => if (Files.isDirectory(sub)) {
-        return false
+        hasSubFolder = true
       }
     }
-    true
+    !hasSubFolder
   }
 
   private def isOldSnapshot(file: Path, fileName: String): Boolean = {

@@ -3,4 +3,4 @@ A maven repository cleaner
 
 ## usage
 
-sbt run ${user.home}/.m2/repository
+sbt "run ${user.home}/.m2/repository"
